@@ -6,21 +6,118 @@
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 <script src="jquery.parse.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<style>
+.multi { float: left; margin: 5px; }
+#mphchart { clear: both; width: 100%; height: 400px; }
+#upload { clear: both; }
+</style>
 <script>
-alldata = {}
-$(document).ready(function() {
+alldata = {};
+routes = [];
+bikes = [];
+
+Highcharts.setOptions({ global: { useUTC: false } });
+
+function updatestats() {
+  var activeroutes = $.map( $('#routes option:selected'), function(e) { return $(e).val(); } );
+  var activebikes = $.map( $('#bikes option:selected'), function(e) { return $(e).val(); } );
+  var totalrides = 0;
+  var totalmiles = 0;
+  var totalminutes = 0;
+  var plotdata = [];
+  $.each(alldata.results.rows, function(i, d) {
+    if (!d.Route || (activeroutes.indexOf(d.Route)==-1) || (activebikes.indexOf(d.Bike)==-1))
+      return;
+    totalrides += 1;
+    totalmiles += d["Distance (miles)"];
+    var times = d.Time.split(":");
+    totalminutes += parseInt(times[0])*60 + parseInt(times[1]) + parseInt(times[2])/60;
+    plotdata.push({x: Date.parse(d["Start Time"]), y: d["Average Speed (mph)"], name: d.Route + ", " + d.Bike});
+  });
+  $("#totalrides").text(totalrides);
+  $("#totalmiles").text(totalmiles.toFixed(1));
+  $("#totalminutes").text((totalminutes/60).toFixed(0) + ":" + (totalminutes%60).toFixed(0));
+  plotdata = plotdata.sort(function (a, b) { return a.x-b.x; });
+  $('#mphchart').highcharts({
+    chart: {
+      type: 'scatter'
+    },
+    title: {
+      text: 'Ride Speed'
+    },
+    yAxis: {
+      title: {
+        text: 'MPH'
+      }
+    },
+    xAxis: {
+      type: 'datetime'
+    },
+    series: [{
+      name: 'Rides',
+      data: plotdata
+    }],
+  });
+}
+
+$(document).ready(function () {
+  $(".multi").hide();
+  $("select").change(updatestats);
   $("#submit").click(function () {
     $('input[type=file]').parse({
-        complete: function(data) {
-            alldata = data;
+      complete: function(data) {
+        alldata = data;
+        routes = [];
+        bikes = [];
+        for (var i=0; i<data.results.rows.length; i++) {
+          if (!data.results.rows[i].Route)
+            continue;
+          if (routes.indexOf(data.results.rows[i].Route) == -1) {
+            $("#routes").append("<option selected>" + data.results.rows[i].Route + "</option>");
+            routes.push(data.results.rows[i].Route);
+          }
+          if (bikes.indexOf(data.results.rows[i].Bike) == -1) {
+            $("#bikes").append("<option selected>" + data.results.rows[i].Bike + "</option>");
+            bikes.push(data.results.rows[i].Bike);
+          }
         }
+        $(".multi").show();
+        updatestats();
+      }
     });
   });
 });
+
 </script>
-</head>
+<head>
 <body class="ui-widget">
-Upload: <input type="file" name="csvfile" size="20"><br>
-<button id="submit">Submit</button>
+
+<h1>Graph Cyclemeter Rides</h1>
+
+<div id="totals">
+Totals - Rides: <span id="totalrides">0</span>, Miles: <span id="totalmiles">0</span>, Time: <span id="totalminutes">0</span>
+</div>
+
+<div class="multi">
+<h3>Routes</h3>
+<select multiple id="routes"></select>
+</div>
+
+<div class="multi">
+<h3>Bikes</h3>
+<select multiple id="bikes"></select>
+</div>
+
+<div id="mphchart">
+</div>
+
+<div id="upload">
+In Cyclemeter: History &gt; List All Rides &gt; ^ &gt; Export &gt; Email
+&gt; CSV File Attachment<br>
+CSV File: <input type="file" name="csvfile" size="20"><br>
+<button id="submit">Upload</button>
+</div>
+
 </body>
 </html>
