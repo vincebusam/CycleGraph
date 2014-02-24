@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Graph Cyclemeter Data</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<script src="jquery.parse.min.js"></script>
+<script>
+alldata = {}
+$(document).ready(function() {
+  $("#submit").click(function () {
+    $('input[type=file]').parse({
+        complete: function(data) {
+            alldata = data;
+        }
+    });
+  });
+});
+</script>
+</head>
+<body class="ui-widget">
+Upload: <input type="file" name="csvfile" size="20"><br>
+<button id="submit">Submit</button>
+</body>
+</html>
