@@ -155,18 +155,18 @@ $(document).ready(function () {
         alldata = data;
         routes = [];
         bikes = [];
-        for (var i=0; i<data.results.rows.length; i++) {
-          if (!data.results.rows[i].Route)
-            continue;
-          if (routes.indexOf(data.results.rows[i].Route) == -1) {
-            $("#routes").append("<option selected>" + data.results.rows[i].Route + "</option>");
-            routes.push(data.results.rows[i].Route);
+        $.each(data.results.rows, function(i, d) {
+          if (!d.Route)
+            return;
+          if (routes.indexOf(d.Route) == -1) {
+            $("#routes").append("<option selected>" + d.Route + "</option>");
+            routes.push(d.Route);
           }
-          if (bikes.indexOf(data.results.rows[i].Bike) == -1) {
-            $("#bikes").append("<option selected>" + data.results.rows[i].Bike + "</option>");
-            bikes.push(data.results.rows[i].Bike);
+          if (bikes.indexOf(d.Bike) == -1) {
+            $("#bikes").append("<option selected>" + d.Bike + "</option>");
+            bikes.push(d.Bike);
           }
-        }
+        });
         $(".multi").show();
         updatestats();
       }
