@@ -54,6 +54,9 @@ function updatestats() {
     xAxis: {
       type: 'datetime'
     },
+    tooltip: {
+      formatter: function() { return "<b>" + this.point.name + "</b><br/>" + Highcharts.dateFormat('%a %d %b %Y %I:%M %p',this.x) + ", " + this.y + " MPH"; }
+    },
     series: [{
       name: 'Rides',
       data: plotdata
