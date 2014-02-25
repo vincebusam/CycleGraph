@@ -99,7 +99,12 @@ function updatestats() {
     totalminutes += parseInt(times[0])*60 + parseInt(times[1]) + parseInt(times[2])/60;
     if (plotdata[d.Route] == undefined)
       plotdata[d.Route] = [];
-    plotdata[d.Route].push({x: Date.parse(d["Start Time"]), y: d["Average Speed (mph)"], name: d.Route + ", " + d.Bike});
+    plotdata[d.Route].push({
+                             x: Date.parse(d["Start Time"]),
+                             y: d["Average Speed (mph)"],
+                             name: d.Route + ", " + d.Bike,
+                             time: d.Time
+                           });
     regx.push(Date.parse(d["Start Time"]));
     regy.push(d["Average Speed (mph)"]);
   });
@@ -138,7 +143,7 @@ function updatestats() {
       type: 'datetime'
     },
     tooltip: {
-      formatter: function() { return "<b>" + this.point.name + "</b><br/>" + Highcharts.dateFormat('%a %d %b %Y %I:%M %p',this.x) + ", " + this.y + " MPH"; }
+      formatter: function() { return "<b>" + this.point.name + "</b><br/>" + Highcharts.dateFormat('%a %d %b %Y %I:%M %p',this.x) + ", " + this.y + "MPH, " + this.point.time; }
     },
     series: allseries,
   });
