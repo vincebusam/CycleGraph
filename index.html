@@ -84,6 +84,7 @@ function findLineByLeastSquares(values_x, values_y) {
 function updatestats() {
   var activeroutes = $.map( $('#routes option:selected'), function(e) { return $(e).val(); } );
   var activebikes = $.map( $('#bikes option:selected'), function(e) { return $(e).val(); } );
+  var groupby = $("#groupby").val();
   var totalrides = 0;
   var totalmiles = 0;
   var totalminutes = 0;
@@ -97,9 +98,9 @@ function updatestats() {
     totalmiles += d["Distance (miles)"];
     var times = d.Time.split(":");
     totalminutes += parseInt(times[0])*60 + parseInt(times[1]) + parseInt(times[2])/60;
-    if (plotdata[d.Route] == undefined)
-      plotdata[d.Route] = [];
-    plotdata[d.Route].push({
+    if (plotdata[d[groupby]] == undefined)
+      plotdata[d[groupby]] = [];
+    plotdata[d[groupby]].push({
                              x: Date.parse(d["Start Time"]),
                              y: d["Average Speed (mph)"],
                              name: d.Route + ", " + d.Bike,
@@ -197,6 +198,14 @@ Totals - Rides: <span id="totalrides">0</span>, Miles: <span id="totalmiles">0</
 <div class="multi">
 <h3>Bikes</h3>
 <select multiple id="bikes"></select>
+</div>
+
+<div class="multi">
+<h3>Grouping</h3>
+<select id="groupby">
+<option>Route</option>
+<option>Bike</option>
+</select>
 </div>
 
 <div id="mphchart">
