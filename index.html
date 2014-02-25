@@ -9,7 +9,7 @@
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <style>
 .multi { float: left; margin: 5px; }
-#mphchart { clear: both; width: 100%; height: 400px; }
+#mphchart { clear: both; width: 95%; height: 400px; }
 #upload { clear: both; }
 </style>
 <script>
@@ -18,6 +18,68 @@ routes = [];
 bikes = [];
 
 Highcharts.setOptions({ global: { useUTC: false } });
+
+// http://dracoblue.net/dev/linear-least-squares-in-javascript/
+function findLineByLeastSquares(values_x, values_y) {
+    var sum_x = 0;
+    var sum_y = 0;
+    var sum_xy = 0;
+    var sum_xx = 0;
+    var count = 0;
+
+    /*
+     * We'll use those variables for faster read/write access.
+     */
+    var x = 0;
+    var y = 0;
+    var values_length = values_x.length;
+
+    if (values_length != values_y.length) {
+        throw new Error('The parameters values_x and values_y need to have same size!');
+    }
+
+    /*
+     * Nothing to do.
+     */
+    if (values_length === 0) {
+        return [ [], [] ];
+    }
+
+    /*
+     * Calculate the sum for each of the parts necessary.
+     */
+    for (var v = 0; v < values_length; v++) {
+        x = values_x[v];
+        y = values_y[v];
+        sum_x += x;
+        sum_y += y;
+        sum_xx += x*x;
+        sum_xy += x*y;
+        count++;
+    }
+
+    /*
+     * Calculate m and b for the formular:
+     * y = x * m + b
+     */
+    var m = (count*sum_xy - sum_x*sum_y) / (count*sum_xx - sum_x*sum_x);
+    var b = (sum_y/count) - (m*sum_x)/count;
+
+    /*
+     * We will make the x and y result line now
+     */
+    var result_values_x = [];
+    var result_values_y = [];
+
+    for (var v = 0; v < values_length; v++) {
+        x = values_x[v];
+        y = x * m + b;
+        result_values_x.push(x);
+        result_values_y.push(y);
+    }
+
+    return [result_values_x, result_values_y];
+}
 
 function updatestats() {
   var activeroutes = $.map( $('#routes option:selected'), function(e) { return $(e).val(); } );
@@ -39,9 +101,13 @@ function updatestats() {
   $("#totalmiles").text(totalmiles.toFixed(1));
   $("#totalminutes").text((totalminutes/60).toFixed(0) + ":" + (totalminutes%60).toFixed(0));
   plotdata = plotdata.sort(function (a, b) { return a.x-b.x; });
+  var rawreg = findLineByLeastSquares(plotdata.map(function (d) { return d.x; }),plotdata.map(function (d) { return d.y; }));
+  var regline = [];
+  for (var i=0; i<rawreg[0].length; i++) {
+    regline.push({x: rawreg[0][i], y: rawreg[1][i]});
+  }
   $('#mphchart').highcharts({
     chart: {
-      type: 'scatter'
     },
     title: {
       text: 'Ride Speed'
@@ -59,13 +125,23 @@ function updatestats() {
     },
     series: [{
       name: 'Rides',
+      type: 'scatter',
       data: plotdata
+    }, {
+      type: 'line',
+      data: regline,
+      marker: { enabled: false },
+      states: { hover: { lineWidth: 0 } },
+      enableMouseTracking: false,
+      showInLegend: false
     }],
   });
+  $("#mphchart").show();
 }
 
 $(document).ready(function () {
   $(".multi").hide();
+  $("#mphchart").hide();
   $("select").change(updatestats);
   $("#submit").click(function () {
     $('input[type=file]').parse({
