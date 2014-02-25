@@ -87,7 +87,9 @@ function updatestats() {
   var totalrides = 0;
   var totalmiles = 0;
   var totalminutes = 0;
-  var plotdata = [];
+  var plotdata = {};
+  var regx = [];
+  var regy = [];
   $.each(alldata.results.rows, function(i, d) {
     if (!d.Route || (activeroutes.indexOf(d.Route)==-1) || (activebikes.indexOf(d.Bike)==-1))
       return;
@@ -95,17 +97,32 @@ function updatestats() {
     totalmiles += d["Distance (miles)"];
     var times = d.Time.split(":");
     totalminutes += parseInt(times[0])*60 + parseInt(times[1]) + parseInt(times[2])/60;
-    plotdata.push({x: Date.parse(d["Start Time"]), y: d["Average Speed (mph)"], name: d.Route + ", " + d.Bike});
+    if (plotdata[d.Route] == undefined)
+      plotdata[d.Route] = [];
+    plotdata[d.Route].push({x: Date.parse(d["Start Time"]), y: d["Average Speed (mph)"], name: d.Route + ", " + d.Bike});
+    regx.push(Date.parse(d["Start Time"]));
+    regy.push(d["Average Speed (mph)"]);
   });
   $("#totalrides").text(totalrides);
   $("#totalmiles").text(totalmiles.toFixed(1));
   $("#totalminutes").text((totalminutes/60).toFixed(0) + ":" + (totalminutes%60).toFixed(0));
-  plotdata = plotdata.sort(function (a, b) { return a.x-b.x; });
-  var rawreg = findLineByLeastSquares(plotdata.map(function (d) { return d.x; }),plotdata.map(function (d) { return d.y; }));
+  var rawreg = findLineByLeastSquares(regx, regy);
   var regline = [];
   for (var i=0; i<rawreg[0].length; i++) {
     regline.push({x: rawreg[0][i], y: rawreg[1][i]});
   }
+  var allseries = [];
+  for (var k in plotdata) {
+    allseries.push({name: k, type: 'scatter', data: plotdata[k]});
+  }
+  allseries.push({
+      type: 'line',
+      data: regline,
+      marker: { enabled: false },
+      states: { hover: { lineWidth: 0 } },
+      enableMouseTracking: false,
+      showInLegend: false
+  });
   $('#mphchart').highcharts({
     chart: {
     },
@@ -123,18 +140,7 @@ function updatestats() {
     tooltip: {
       formatter: function() { return "<b>" + this.point.name + "</b><br/>" + Highcharts.dateFormat('%a %d %b %Y %I:%M %p',this.x) + ", " + this.y + " MPH"; }
     },
-    series: [{
-      name: 'Rides',
-      type: 'scatter',
-      data: plotdata
-    }, {
-      type: 'line',
-      data: regline,
-      marker: { enabled: false },
-      states: { hover: { lineWidth: 0 } },
-      enableMouseTracking: false,
-      showInLegend: false
-    }],
+    series: allseries,
   });
   $("#mphchart").show();
 }
