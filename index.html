@@ -95,7 +95,7 @@ $(document).ready(function () {
   $(".multi").hide();
   $("#mphchart").hide();
   $("select").change(updatestats);
-  $("#submit").click(function () {
+  $('input[type=file]').change(function () {
     $('input[type=file]').parse({
       complete: function(data) {
         alldata = data;
@@ -155,7 +155,6 @@ Totals - Rides: <span id="totalrides">0</span>, Miles: <span id="totalmiles">0</
 In Cyclemeter: History &gt; List All Rides &gt; ^ &gt; Export &gt; Email
 &gt; CSV File Attachment<br>
 CSV File: <input type="file" name="csvfile" size="20"><br>
-<button id="submit">Upload</button>
 </div>
 
 </body>
