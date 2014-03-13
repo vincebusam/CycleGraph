@@ -101,6 +101,8 @@ $(document).ready(function () {
         alldata = data;
         routes = [];
         bikes = [];
+        $("#routes").empty();
+        $("#bikes").empty();
         $.each(data.results.rows, function(i, d) {
           if (!d.Route)
             return;
