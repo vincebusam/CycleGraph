@@ -22,6 +22,10 @@ bikes = [];
 Highcharts.setOptions({ global: { useUTC: false } });
 
 function updatestats() {
+  graphstats("#mphchart", "Average Speed (mph)", "Ride Speed", "MPH");
+}
+
+function graphstats(div, stat, title, yaxis) {
   var activeroutes = $.map( $('#routes option:selected'), function(e) { return $(e).val(); } );
   var activebikes = $.map( $('#bikes option:selected'), function(e) { return $(e).val(); } );
   var groupby = $("#groupby").val();
@@ -42,12 +46,12 @@ function updatestats() {
       plotdata[d[groupby]] = [];
     plotdata[d[groupby]].push({
                              x: Date.parse(d["Start Time"]),
-                             y: d["Average Speed (mph)"],
+                             y: d[stat],
                              name: d.Route + ", " + d.Bike,
                              time: d.Time
                            });
     regx.push(Date.parse(d["Start Time"]));
-    regy.push(d["Average Speed (mph)"]);
+    regy.push(d[stat]);
   });
   $("#totalrides").text(totalrides);
   $("#totalmiles").text(totalmiles.toFixed(1));
@@ -69,15 +73,15 @@ function updatestats() {
       enableMouseTracking: false,
       showInLegend: false
   });
-  $('#mphchart').highcharts({
+  $(div).highcharts({
     chart: {
     },
     title: {
-      text: 'Ride Speed'
+      text: title
     },
     yAxis: {
       title: {
-        text: 'MPH'
+        text: yaxis
       }
     },
     xAxis: {
@@ -88,7 +92,7 @@ function updatestats() {
     },
     series: allseries,
   });
-  $("#mphchart").show();
+  $(div).show();
 }
 
 $(document).ready(function () {
