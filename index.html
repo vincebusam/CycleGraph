@@ -98,6 +98,7 @@ $(document).ready(function () {
   $('input[type=file]').change(function () {
     $('input[type=file]').parse({
       complete: function(data) {
+        data.results.rows.sort(function (a,b) {return a["Start Time"].localeCompare(b["Start Time"]);});
         alldata = data;
         routes = [];
         bikes = [];
