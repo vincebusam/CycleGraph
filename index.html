@@ -11,7 +11,7 @@
 <script src="bestfitline.js"></script>
 <style>
 .multi { float: left; margin: 5px; }
-#mphchart { clear: both; width: 95%; height: 600px; }
+.chart { clear: both; width: 95%; height: 600px; }
 #upload { clear: both; }
 </style>
 <script>
@@ -22,10 +22,11 @@ bikes = [];
 Highcharts.setOptions({ global: { useUTC: false } });
 
 function updatestats() {
-  graphstats("#mphchart", "Average Speed (mph)", "Ride Speed", "MPH");
+  graphstats("#mphchart", "Average Speed (mph)", "Ride Speed", "MPH", null);
+  graphstats("#timechart", "Time (secs)", "Ride Time", "H:M:S", function() {return Math.floor(this.value/(60*60))+":"+Math.floor((this.value/60)%60)+":"+(this.value%60)});
 }
 
-function graphstats(div, stat, title, yaxis) {
+function graphstats(div, stat, title, yaxis, yaxisformat) {
   var activeroutes = $.map( $('#routes option:selected'), function(e) { return $(e).val(); } );
   var activebikes = $.map( $('#bikes option:selected'), function(e) { return $(e).val(); } );
   var groupby = $("#groupby").val();
@@ -82,6 +83,9 @@ function graphstats(div, stat, title, yaxis) {
     yAxis: {
       title: {
         text: yaxis
+      },
+      labels: {
+        formatter: yaxisformat
       }
     },
     xAxis: {
@@ -97,7 +101,7 @@ function graphstats(div, stat, title, yaxis) {
 
 $(document).ready(function () {
   $(".multi").hide();
-  $("#mphchart").hide();
+  $(".chart").hide();
   $("select").change(updatestats);
   $('input[type=file]').change(function () {
     $('input[type=file]').parse({
@@ -155,7 +159,9 @@ Totals - Rides: <span id="totalrides">0</span>, Miles: <span id="totalmiles">0</
 </select>
 </div>
 
-<div id="mphchart">
+<div id="mphchart" class="chart">
+</div>
+<div id="timechart" class="chart">
 </div>
 
 <div id="upload">
