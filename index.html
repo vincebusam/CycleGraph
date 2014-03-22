@@ -23,7 +23,7 @@ Highcharts.setOptions({ global: { useUTC: false } });
 
 function updatestats() {
   graphstats("#mphchart", "Average Speed (mph)", "Ride Speed", "MPH", null);
-  graphstats("#timechart", "Time (secs)", "Ride Time", "H:M:S", function() {return Math.floor(this.value/(60*60))+":"+Math.floor((this.value/60)%60)+":"+(this.value%60)});
+  graphstats("#timechart", "Time (secs)", "Ride Time", "H:M:S", function() {return Math.floor(this.value/(60*60))+":"+("0"+Math.floor((this.value/60)%60)).slice(-2)+":"+("0"+(this.value%60)).slice(-2)});
 }
 
 function graphstats(div, stat, title, yaxis, yaxisformat) {
