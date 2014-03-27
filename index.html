@@ -56,7 +56,7 @@ function graphstats(div, stat, title, yaxis, yaxisformat) {
   });
   $("#totalrides").text(totalrides);
   $("#totalmiles").text(totalmiles.toFixed(1));
-  $("#totalminutes").text((totalminutes/60).toFixed(0) + ":" + (totalminutes%60).toFixed(0));
+  $("#totalminutes").text(Math.floor(totalminutes/60) + ":" + ("0"+Math.floor(totalminutes%60)).slice(-2));
   var rawreg = findLineByLeastSquares(regx, regy);
   var regline = [];
   for (var i=0; i<rawreg[0].length; i++) {
