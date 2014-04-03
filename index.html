@@ -49,7 +49,8 @@ function graphstats(div, stat, title, yaxis, yaxisformat) {
                              x: Date.parse(d["Start Time"]),
                              y: d[stat],
                              name: d.Route + ", " + d.Bike,
-                             time: d.Time
+                             time: d.Time,
+                             mph: d["Average Speed (mph)"]
                            });
     regx.push(Date.parse(d["Start Time"]));
     regy.push(d[stat]);
@@ -92,7 +93,7 @@ function graphstats(div, stat, title, yaxis, yaxisformat) {
       type: 'datetime'
     },
     tooltip: {
-      formatter: function() { return "<b>" + this.point.name + "</b><br/>" + Highcharts.dateFormat('%a %d %b %Y %I:%M %p',this.x) + ", " + this.y + "MPH, " + this.point.time; }
+      formatter: function() { return "<b>" + this.point.name + "</b><br/>" + Highcharts.dateFormat('%a %d %b %Y %I:%M %p',this.x) + ", " + this.point.mph + "MPH, " + this.point.time; }
     },
     series: allseries,
   });
