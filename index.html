@@ -58,6 +58,7 @@ function graphstats(div, stat, title, yaxis, yaxisformat) {
   $("#totalrides").text(totalrides);
   $("#totalmiles").text(totalmiles.toFixed(1));
   $("#totalminutes").text(Math.floor(totalminutes/60) + ":" + ("0"+Math.floor(totalminutes%60)).slice(-2));
+  $("#totalmph").text((totalmiles/(totalminutes/60)).toFixed(2));
   var rawreg = findLineByLeastSquares(regx, regy);
   var regline = [];
   for (var i=0; i<rawreg[0].length; i++) {
@@ -139,7 +140,7 @@ $(document).ready(function () {
 <h1>Graph Cyclemeter Rides</h1>
 
 <div id="totals">
-Totals - Rides: <span id="totalrides">0</span>, Miles: <span id="totalmiles">0</span>, Time: <span id="totalminutes">0</span>
+Totals - Rides: <span id="totalrides">0</span>, Miles: <span id="totalmiles">0</span>, Time: <span id="totalminutes">0</span>, MPH: <span id="totalmph">0</span>
 </div>
 
 <div class="multi">
