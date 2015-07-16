@@ -13,11 +13,13 @@
 .multi { float: left; margin: 5px; }
 .chart { clear: both; width: 95%; height: 600px; }
 #upload { clear: both; }
+#compare { position: absolute; top: 5px; right: 5px; }
 </style>
 <script>
 alldata = {};
 routes = [];
 bikes = [];
+compareurls = [];
 
 Highcharts.setOptions({ global: { useUTC: false } });
 
@@ -50,6 +52,7 @@ function graphstats(div, stat, title, yaxis, yaxisformat) {
                              y: d[stat],
                              name: d.Route + ", " + d.Bike,
                              time: d.Time,
+                             startTime: d["Start Time"],
                              mph: d["Average Speed (mph)"]
                            });
     regx.push(Date.parse(d["Start Time"]));
@@ -96,6 +99,20 @@ function graphstats(div, stat, title, yaxis, yaxisformat) {
     tooltip: {
       formatter: function() { return "<b>" + this.point.name + "</b><br/>" + Highcharts.dateFormat('%a %d %b %Y %I:%M %p',this.x) + ", " + this.point.mph + "MPH, " + this.point.time; }
     },
+    plotOptions: {
+      series: {
+        point: {
+          events: {
+            click: function (e) {
+              var date = this.startTime.substr(0,4) + this.startTime.substr(5,2) + this.startTime.substr(8,2) + "-" + this.startTime.substr(11,2) + this.startTime.substr(14,2);
+              compareurls.push("../cyclelog/Cyclemeter-Cycle-" + date + ".gpx");
+              $("#comparelist").append(this.startTime + "<br>");
+              $("#compare").show();
+            }
+          }
+        }
+      }
+    },
     series: allseries,
   });
   $(div).show();
@@ -104,6 +121,7 @@ function graphstats(div, stat, title, yaxis, yaxisformat) {
 $(document).ready(function () {
   $(".multi").hide();
   $(".chart").hide();
+  $("#compare").hide();
   $("select").change(updatestats);
   $('input[type=file]').change(function () {
     $('input[type=file]').parse({
@@ -130,6 +148,11 @@ $(document).ready(function () {
         updatestats();
       }
     });
+  });
+  $("#compare button").click(function () {
+    window.open("../gpxrace/?urls=" + compareurls.join(","), "_newtab");
+    compareurls = [];
+    $("#comparelist").html("");
   });
 });
 
@@ -159,6 +182,11 @@ Totals - Rides: <span id="totalrides">0</span>, Miles: <span id="totalmiles">0</
 <option>Route</option>
 <option>Bike</option>
 </select>
+</div>
+
+<div id="compare">
+<div id="comparelist"></div>
+<button>Compare</button>
 </div>
 
 <div id="mphchart" class="chart">
